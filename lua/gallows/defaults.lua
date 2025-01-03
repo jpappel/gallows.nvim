@@ -62,6 +62,63 @@ M.executioners.vim = {
         return Helpers.exec_pcall(vim.api.nvim_exec2, "source " .. filepath)
     end
 }
+M.executioners.sh = {
+    exec_line = function(line)
+        local result = vim.system({ "sh", "-c", line }, { text = true }):wait()
+        return {
+            ok = result.code == 0,
+            output = result.stdout,
+            error = result.stderr
+        }
+    end,
+    exec_block = function(block, _)
+        local tmp_file = vim.fn.tempname() .. ".sh"
+        vim.fn.writefile(block, tmp_file)
+        local result = vim.system({ "sh", tmp_file }, { text = true }):wait()
+
+        return {
+            ok = result.code == 0,
+            output = result.stdout,
+            error = result.stderr
+        }
+    end,
+    exec_file = function(filepath)
+        local result = vim.system({ "sh", filepath }, { text = true }):wait()
+        return {
+            ok = result.code == 0,
+            output = result.stdout,
+            error = result.stderr
+        }
+    end
+}
+M.executioners.bash = {
+    exec_line = function(line)
+        local result = vim.system({ "bash", "-c", line }, { text = true }):wait()
+        return {
+            ok = result.code == 0,
+            output = result.stdout,
+            error = result.stderr
+        }
+    end,
+    exec_block = function(block, _)
+        local tmp_file = vim.fn.tempname() .. ".bash"
+        vim.fn.writefile(block, tmp_file)
+        local result = vim.system({ "bash", tmp_file }, { text = true }):wait()
+        return {
+            ok = result.code == 0,
+            output = result.stdout,
+            error = result.stderr
+        }
+    end,
+    exec_file = function(filepath)
+        local result = vim.system({ "bash", filepath }, { text = true }):wait()
+        return {
+            ok = result.code == 0,
+            output = result.stdout,
+            error = result.stderr
+        }
+    end
+}
 
 M.window_opts = {
     relative = "editor", -- only if floating
