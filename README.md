@@ -6,6 +6,21 @@ A neovim plugin for executing external commands
 > This plugin is still very much in development, and is extremely unstable.
 > Use at your own risk
 
+## Features
+
+* execute code linewise, blockwise, or filewise
+* view code output in a window
+* full feature executiioners
+    * lua
+    * vimscript
+    * python
+
+### Planned
+
+* output and command history
+* better project based executioner support
+* support for setting executioner environment variables
+
 ## Installation
 
 <details><summary>Lazy</summary>
