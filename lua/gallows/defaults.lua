@@ -33,11 +33,11 @@ M.executioners.lua = {
         return exec_result
     end,
     exec_block = function(block, endmarker)
-        -- TODO: tidy up response
         return Helpers.exec_pcall(vim.api.nvim_exec2, "lua " .. Helpers.make_heredoc(block, endmarker))
     end,
     exec_file = function(filepath)
-        return Helpers.exec_pcall(vim.api.nvim_exec2, "luafile " .. filepath)
+        local command = filepath and "source " .. filepath or "source"
+        return Helpers.exec_pcall(vim.api.nvim_exec2, command)
     end
 }
 M.executioners.python = {
@@ -48,7 +48,18 @@ M.executioners.python = {
         return Helpers.exec_pcall(vim.api.nvim_exec2, "py " .. Helpers.make_heredoc(block, endmarker))
     end,
     exec_file = function(filepath)
-        return Helpers.exec_pcall(vim.api.nvim_exec2, "pyfile " .. filepath)
+        local is_tmp_file = false
+        if not filepath then
+            is_tmp_file = true
+            filepath = Helpers.buf_to_tempfile(0, ".py")
+        end
+
+        local result = Helpers.exec_pcall(vim.api.nvim_exec2, "pyfile " .. filepath)
+        if is_tmp_file then
+            os.remove(filepath)
+        end
+
+        return result
     end
 }
 M.executioners.vim = {
@@ -59,7 +70,8 @@ M.executioners.vim = {
         return Helpers.exec_pcall(vim.api.nvim_exec2, table.concat(block, "\n"))
     end,
     exec_file = function(filepath)
-        return Helpers.exec_pcall(vim.api.nvim_exec2, "source " .. filepath)
+        local command = filepath and "source " .. filepath or "source"
+        return Helpers.exec_pcall(vim.api.nvim_exec2, command)
     end
 }
 M.executioners.sh = {
@@ -75,6 +87,7 @@ M.executioners.sh = {
         local tmp_file = vim.fn.tempname() .. ".sh"
         vim.fn.writefile(block, tmp_file)
         local result = vim.system({ "sh", tmp_file }, { text = true }):wait()
+        os.remove(tmp_file)
 
         return {
             ok = result.code == 0,
@@ -83,7 +96,17 @@ M.executioners.sh = {
         }
     end,
     exec_file = function(filepath)
+        local is_tmp_file = false
+        if not filepath then
+            is_tmp_file = true
+            filepath = Helpers.buf_to_tempfile(0, ".sh")
+        end
+
         local result = vim.system({ "sh", filepath }, { text = true }):wait()
+        if is_tmp_file then
+            os.remove(filepath)
+        end
+
         return {
             ok = result.code == 0,
             output = result.stdout,
@@ -103,7 +126,10 @@ M.executioners.bash = {
     exec_block = function(block, _)
         local tmp_file = vim.fn.tempname() .. ".bash"
         vim.fn.writefile(block, tmp_file)
+
         local result = vim.system({ "bash", tmp_file }, { text = true }):wait()
+        os.remove(tmp_file)
+
         return {
             ok = result.code == 0,
             output = result.stdout,
@@ -111,7 +137,17 @@ M.executioners.bash = {
         }
     end,
     exec_file = function(filepath)
+        local is_tmp_file = false
+        if not filepath then
+            is_tmp_file = true
+            filepath = Helpers.buf_to_tempfile(0, ".bash")
+        end
+
         local result = vim.system({ "bash", filepath }, { text = true }):wait()
+        if is_tmp_file then
+            os.remove(filepath)
+        end
+
         return {
             ok = result.code == 0,
             output = result.stdout,

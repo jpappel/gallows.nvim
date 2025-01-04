@@ -122,7 +122,7 @@ function M.source_native()
 
     local executioner = M.executioners[ft]
     if executioner == nil then
-        vim.api.nvim_err_writeln("Unable to source file with filetye '" .. ft "'")
+        vim.api.nvim_err_writeln("Unable to source file with filetype '" .. ft "'")
         return
     end
 

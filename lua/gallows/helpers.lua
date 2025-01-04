@@ -14,6 +14,19 @@ M.make_heredoc = function(block, endmarker)
     return "<< " .. endmarker .. "\n" .. content .. "\n" .. endmarker
 end
 
+--- Write a buffer to a temporary file
+--- @param buf integer the buffer to write to a temp file, 0 for current buffer
+--- @param suffix string? suffix for filename
+--- @return string # the temporary  filename
+function M.buf_to_tempfile(buf, suffix)
+    local tmp_file = vim.fn.tempname()
+    local filepath = suffix and tmp_file .. suffix or tmp_file
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+
+    vim.fn.writefile(lines, filepath)
+    return filepath
+end
+
 --- Pcall for an executioner and parse the result
 --- @param f fun(...: any): ...unknown The function to execute
 --- @param ... any Arguments to pass to the function
