@@ -10,16 +10,16 @@ A neovim plugin for executing external commands
 
 * execute code linewise, blockwise, or filewise
 * view code output in a window
-* full feature executiioners
-    * lua
-    * vimscript
-    * python
+* multiple fully featured executiioners
 
 ### Planned
 
+* documentation
+    * possible use
 * output and command history
 * better project based executioner support
 * support for setting executioner environment variables
+* plugin tests
 
 ## Installation
 

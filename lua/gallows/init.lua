@@ -2,8 +2,9 @@ local Helpers = require("gallows.helpers")
 local Defaults = require("gallows.defaults")
 local Ui = require("gallows.ui")
 
-
 local M = {}
+
+M.Version = "0.1.0"
 
 --- @class ExecuteResult
 --- @field ok boolean
@@ -112,7 +113,7 @@ function M.execute_native(chunk, endmarker)
         end
 
         extmarks.out_header = Ui.write_output(buffers.out, timestamp, result.output, extmarks.out_header)
-        vim.api.nvim_out_write("Wrote to Gallows buffer\n")
+        vim.api.nvim_out_write("Gallows executed " .. mode .. " with executioner " .. ft .. "\n")
     else
         vim.api.nvim_err_writeln("`gallows.setup` was not called!")
     end
@@ -144,7 +145,7 @@ function M.source_native()
             end
 
             extmarks.out_header = Ui.write_output(buffers.out, timestamp, result.output, extmarks.out_header)
-            vim.api.nvim_out_write("Wrote to Gallows buffer\n")
+            vim.api.nvim_out_write("Gallows executed file with executioner " .. ft .. "\n")
         else
             vim.api.nvim_err_writeln("`gallows.setup` was not called!")
         end
@@ -231,7 +232,7 @@ local function setup_buffer(current, bufs, buf_type, keymaps)
 end
 
 --- @param keymaps GallowsKeymaps
---- @return {out: integer, cmd: integer?}
+--- @return {out: integer, cmd: integer}
 local function init_buffs(keymaps)
     local bufs = {}
     bufs.out = vim.api.nvim_create_buf(false, true)
@@ -286,6 +287,8 @@ function M.setup(opts)
     vim.api.nvim_create_user_command("GallowsToggle", function(_)
         M.toggle()
     end, { desc = "Toggle the Gallows window" })
+
+    extmarks = Ui.write_splash(buffers, extmarks, M.executioners)
 end
 
 return M
