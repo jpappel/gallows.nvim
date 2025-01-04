@@ -124,12 +124,23 @@ function M.write_command(buf, src, mode, timestamp, opts, mark)
         return
     end
 
-    local output = {""}
+    local output = {}
     if type(src) == "string" then
         table.insert(output, "source: " .. src)
     else
         vim.list_extend(output, src)
     end
+
+    -- filter whitespace before or after content
+    -- this allows clean resourcing of the comand buffer
+    while #vim.trim(output[1]) == 0 do
+        table.remove(output, 1)
+    end
+    while #vim.trim(output[#output]) == 0 do
+        table.remove(output)
+    end
+
+    table.insert(output, 1, "")
 
     local header = M.make_header("command", timestamp, { mode = mode, name = opts.filetype })
 
