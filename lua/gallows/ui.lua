@@ -114,29 +114,22 @@ end
 --- Attempt to command text to a buffer
 --- @param buf integer Destination buffer
 --- @param src string | string[] The filepath or lines of the command
+--- @param mode "line" | "block" | "file"
 --- @param timestamp string
---- @param opts {filetype: string?, name: string?}
+--- @param opts {filetype: string?}
 --- @param mark integer?
-function M.write_command(buf, src, timestamp, opts, mark)
+function M.write_command(buf, src, mode, timestamp, opts, mark)
     if not src then
         vim.api.nvim_err_writeln("Unable to write gallows command: missing command data")
         return
     end
 
-    local mode = ""
-    local output = {}
+    local output = {""}
     if type(src) == "string" then
-        table.insert(output, "Path: " .. src)
-        mode = "file"
+        table.insert(output, "source: " .. src)
     else
-        if #src == 1 then
-            mode = "line"
-        else
-            mode = "block"
-        end
         vim.list_extend(output, src)
     end
-    table.insert(output, 1, "")
 
     local header = M.make_header("command", timestamp, { mode = mode, name = opts.filetype })
 

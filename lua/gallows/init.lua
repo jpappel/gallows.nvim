@@ -15,7 +15,6 @@ local M = {}
 --- @field exec_block fun(block: string[], endmarker: string): ExecuteResult Executes a multiline block, uses `endmarker` if needed to create a heredoc
 --- @field exec_file fun(filepath: string | nil): ExecuteResult Execute an entire file, uses current buffer if not filepath is given
 
-
 --- @class ExecutionOpts
 --- @field save_command boolean? Save the executed command
 
@@ -86,10 +85,12 @@ function M.execute_native(chunk, endmarker)
         return
     end
 
+    local mode = #chunk == 1 and "line" or "block"
+
     local timestamp = tostring(os.date "%x %X")
     if M.exec_opts.save_command and buffers.cmd then
         extmarks.cmd_header = M.ui.write_command(buffers.cmd,
-            chunk, timestamp,
+            chunk, mode, timestamp,
             { filetype = ft }, extmarks.cmd_header)
     end
 
@@ -126,7 +127,15 @@ function M.source_native()
         return
     end
 
+    local source = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
     local timestamp = tostring(os.date "%x %X")
+    if M.exec_opts.save_command and buffers.cmd then
+        extmarks.cmd_header = M.ui.write_command(buffers.cmd,
+            source, "file", timestamp,
+            { filetype = ft }, extmarks.cmd_header)
+    end
+
     local result = executioner.exec_file()
     if result.ok then
         if buffers.out then
