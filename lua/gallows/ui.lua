@@ -12,7 +12,6 @@ function M.open(bufs, old_wins, opts)
         return old_wins.main
     end
 
-    -- TODO: create resize autocommand
     local new_wins = {}
     new_wins.main = vim.api.nvim_open_win(bufs.main, true, opts)
 

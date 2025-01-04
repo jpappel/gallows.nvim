@@ -146,8 +146,17 @@ end
 
 function M.open()
     if buffers.out then
-        windows.main = Ui.open({ main = buffers.out }, windows,
-            M.window_opts)
+        windows.main = Ui.open({ main = buffers.out }, windows, {
+            relative = "editor",
+            width = math.floor(vim.o.columns * 0.80),
+            height = math.floor(vim.o.lines * 0.75),
+            row = vim.o.lines * 0.125,
+            col = vim.o.columns * 0.10,
+            focusable = M.window_opts.focusable,
+            border = M.window_opts.border,
+            style = M.window_opts.style
+
+        })
     end
 end
 
@@ -157,7 +166,17 @@ end
 
 function M.toggle()
     if buffers.out then
-        windows.main = Ui.toggle({ main = buffers.out }, windows, M.window_opts)
+        windows.main = Ui.toggle({ main = buffers.out }, windows, {
+            relative = "editor",
+            width = math.floor(vim.o.columns * 0.80),
+            height = math.floor(vim.o.lines * 0.75),
+            row = vim.o.lines * 0.125,
+            col = vim.o.columns * 0.10,
+            focusable = M.window_opts.focusable,
+            border = M.window_opts.border,
+            style = M.window_opts.style
+
+        })
     end
 end
 
@@ -169,29 +188,18 @@ local function setup_buffer(current, bufs, buf_type, keymaps)
     vim.bo[current].modifiable = false
     vim.api.nvim_buf_set_name(current, "Gallows: " .. buf_type)
 
-    -- local augroup = vim.api.nvim_create_augroup("Gallows", {})
-    -- vim.api.nvim_create_autocmd("VimResized", {
-    --     group = augroup,
-    --     desc = "Resize Gallows window on size change",
-    --     buffer = current,
-    --     callback = function (args)
-    --         
-    --     end
-    -- })
 
     vim.keymap.set("n", keymaps.switch_to_command, function()
         if windows.main and vim.api.nvim_win_is_valid(windows.main) then
             vim.api.nvim_win_set_buf(windows.main, bufs.cmd)
         end
     end, { buffer = current, desc = "Change the gallows window to command" })
-    -- TODO: fix desc grammar
 
     vim.keymap.set("n", keymaps.switch_to_output, function()
         if windows.main and vim.api.nvim_win_is_valid(windows.main) then
             vim.api.nvim_win_set_buf(windows.main, bufs.out)
         end
     end, { buffer = current, desc = "Change the gallows window to output" })
-    -- TODO: fix desc grammar
 
     vim.keymap.set("n", keymaps.switch_to_next, function()
         if not windows.main or not vim.api.nvim_win_is_valid(windows.main) then
@@ -241,6 +249,26 @@ function M.setup(opts)
     M.exec_opts = opts.exec_opts
 
     buffers = init_buffs(opts.keymaps)
+
+    local augroup = vim.api.nvim_create_augroup("Gallows", {})
+    vim.api.nvim_create_autocmd({ "VimResized" }, {
+        group = augroup,
+        desc = "Resize Gallows window on size change",
+        callback = function()
+            if not (windows.main and vim.api.nvim_win_is_valid(windows.main)) then
+                print("resize but no window")
+                return
+            end
+
+            vim.api.nvim_win_set_config(windows.main, {
+                relative = "editor",
+                width = math.floor(vim.o.columns * 0.8),
+                height = math.floor(vim.o.lines * 0.75),
+                row = math.floor(vim.o.lines * 0.125),
+                col = math.floor(vim.o.columns * 0.1)
+            })
+        end
+    })
 
     vim.api.nvim_create_user_command("Gallows", function(_)
         M.open()

@@ -157,7 +157,7 @@ M.executioners.bash = {
 }
 
 M.window_opts = {
-    relative = "editor", -- only if floating
+    relative = "editor",
     width = math.floor(vim.o.columns * 0.80),
     height = math.floor(vim.o.lines * 0.75),
     row = vim.o.lines * 0.125,
