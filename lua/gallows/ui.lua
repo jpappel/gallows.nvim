@@ -143,6 +143,7 @@ function M.write_output(buf, timestamp, text, mark)
     vim.bo[buf].modifiable = true
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, output)
     local m = M.write_header(buf, header, mark)
+    vim.bo[buf].filetype = ""
     vim.bo[buf].modifiable = false
 
     return m

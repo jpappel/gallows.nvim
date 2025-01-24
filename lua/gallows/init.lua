@@ -228,7 +228,7 @@ local function setup_buffer(current, bufs, buf_type, keymaps)
         if windows.main and vim.api.nvim_win_is_valid(windows.main) then
             vim.api.nvim_win_close(windows.main, false)
         end
-    end)
+    end, { buffer = current, desc = "Close the gallows window" })
 end
 
 --- @param keymaps GallowsKeymaps
